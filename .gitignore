@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+pg_sleeper
 
 # Test binary, built with `go test -c`
 *.test
