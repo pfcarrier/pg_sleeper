@@ -25,3 +25,29 @@ establishing connections...done
 2020-02-09-00:12:00 1min OK (0.001 sec)
 ...
 ```
+
+# Development setup
+
+Setup a local postgres env, this can be done with
+```
+docker-compose up
+```
+
+If you are on mac you can use the following to install the psql client natively to connect to that postgres instance
+```
+brew install libpq
+brew link --force libpq
+
+PGPASSWORD=pgpassword psql -U postgres -h localhost
+```
+
+Alternatively you can use the following connection URL to connect to that instance with your favorite tool
+```
+postgresql://postgres:pgpassword@localhost:5432/postgres
+```
+
+# Build and run
+
+```
+go build && POSTGRES_URL="postgresql://postgres:pgpassword@127.0.0.1:5432/postgres" ./pg_sleeper
+```
