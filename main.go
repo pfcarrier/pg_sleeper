@@ -38,11 +38,17 @@ func init() {
 func main() {
 	var wg sync.WaitGroup
 
+	fmt.Println("Starting", len(sleeperProbes), "probes to monitor DB connection health at the following intervals:")
+
+	for probeName, _ := range sleeperProbes {
+		fmt.Println("*", probeName)
+	}
+
 	for probeName, probeSec := range sleeperProbes {
 		wg.Add(1)
 		go sleeper(probeName, probeSec, &wg)
 	}
-	fmt.Println("establishing connections...done")
+	fmt.Println("\nestablishing connections...done")
 	wg.Wait()
 }
 
@@ -63,9 +69,9 @@ func sleeper(probeName string, probeSec int, wg *sync.WaitGroup) {
 		err = conn.QueryRow(context.Background(), "select 1 as test").Scan(&test)
 		if err != nil {
 			//fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-			fmt.Println(getTime(), probeName, "FAILURE", "(0.0001s)", err)
+			fmt.Println(getTime(), probeName, "FAILURE", "(0.001s) --", err)
 		} else {
-			fmt.Println(getTime(), probeName, "OK", "(0.0001s)")
+			fmt.Println(getTime(), probeName, "OK", "(0.001s)")
 		}
 	}
 }

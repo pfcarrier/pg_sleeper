@@ -20,7 +20,7 @@ establishing connections...done
 2020-02-09-00:08:00 1min OK (0.001 sec)
 2020-02-09-00:09:00 1min OK (0.001 sec)
 2020-02-09-00:10:00 1min OK (0.001 sec)
-2020-02-09-00:10:00 5min FAILURE (0.020 sec) -- PG::ConnectionBad: PQconsumeInput()
+2020-02-09-00:10:00 5min FAILURE (0.020 sec) -- FATAL: terminating connection due to unexpected postmaster exit (SQLSTATE 57P01)
 2020-02-09-00:11:00 1min OK (0.001 sec)
 2020-02-09-00:12:00 1min OK (0.001 sec)
 ...
