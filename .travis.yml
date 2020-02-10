@@ -1,0 +1,27 @@
+language: go
+go:
+  - 1.13
+env:
+  - "PATH=/home/travis/gopath/bin:$PATH"
+before_install:
+  - go get github.com/mitchellh/gox
+  - go get github.com/tcnksm/ghr
+script:
+  - go build
+after_success:
+  - gox -osarch="linux/amd64 darwin/amd64" -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}"
+  - if [[ -n "${TRAVIS_TAG}" ]] ; then ghr --username=pfcarrier --repository pg_sleeper --token $GITHUB_TOKEN --recreate --replace --debug ${TRAVIS_TAG} dist/ ; fi
+branches:
+  only:
+    - master
+    - production
+    - develop
+    - /\Ahotfix\/.*\z/
+    - /\Arelease\/.*\z/
+    - /\Arun-ci\/.*\z/
+    - /^v\d+\.\d+(\.\d+)?$/
+    - /^v\d+\.\d+(\.\d+)?.*$/
+sudo: false
+dist: trusty
+
+# credit :  https://github.com/tcnksm-sample/travis-golang
