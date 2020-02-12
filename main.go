@@ -14,6 +14,7 @@ var sleeperProbes map[string]int
 
 func init() {
 	sleeperProbes = map[string]int{
+		"new":    60,
 		"1min":   60,
 		"2min":   120,
 		"4min":   240,
@@ -48,7 +49,7 @@ func main() {
 		wg.Add(1)
 		go sleeper(probeName, probeSec, &wg)
 	}
-	fmt.Println("\nestablishing connections...done")
+	fmt.Println("\nestablishing connections...done\n")
 	wg.Wait()
 }
 
@@ -59,30 +60,44 @@ func getTime() string {
 func sleeper(probeName string, probeSec int, wg *sync.WaitGroup) {
 	var test int64
 	var err error
+	var conn *pgx.Conn
 	defer wg.Done()
 
-	conn := pgConnect(probeName)
-	defer conn.Close(context.Background())
+	if probeName != "new" {
+		conn, _ = pgConnect(probeName)
+		defer conn.Close(context.Background())
+	}
 
 	for {
 		time.Sleep(time.Second * time.Duration(probeSec))
+
+		if probeName == "new" {
+			conn, err = pgConnect(probeName)
+			if err != nil {
+				fmt.Println(getTime(), probeName, "FAILURE", "--", err)
+				continue
+			}
+		}
+
 		err = conn.QueryRow(context.Background(), "select 1 as test").Scan(&test)
 		if err != nil {
 			//fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-			fmt.Println(getTime(), probeName, "FAILURE", "(0.001s) --", err)
+			fmt.Println(getTime(), probeName, "FAILURE", "--", err)
 		} else {
-			fmt.Println(getTime(), probeName, "OK", "(0.001s)")
+			fmt.Println(getTime(), probeName, "OK")
+		}
+
+		if probeName == "new" {
+			conn.Close(context.Background())
 		}
 	}
 }
 
-func pgConnect(probeName string) *pgx.Conn {
+func pgConnect(probeName string) (*pgx.Conn, error) {
 	conn, err := pgx.Connect(context.Background(), os.Getenv("POSTGRES_URL"))
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to connection to database: %v\n", err)
+	if err != nil && probeName != "new" {
+		fmt.Fprintf(os.Stderr, "%v Unable to connect to database for %v: %v\n", getTime(), probeName, err)
 		os.Exit(1)
-	} else {
-		//fmt.Println("Sucessfully open connection to database for ", probeName)
 	}
-	return conn
+	return conn, err
 }
