@@ -86,3 +86,12 @@ tcp        0      0 192.168.62.193:54252    192.168.153.100:5432    ESTABLISHED 
 > ( I did that copy paste just after it previously reached 0 ).  In a nutshell this track the number of seconds before a new keep alive be sent, if something
 > end up being sent through the tcp socket, or if the keepalive is sent, whichever come first, the counter go back to 300.  It is likely your application timer
 > will be in the 7200 when it reset, something that can be a problem on some network that implement a very aggressive TCP timeout at the firewall level.
+
+You can consult your OS default tcp keepalive ( on linux )
+
+```
+cat /proc/sys/net/ipv4/tcp_keepalive_time
+  7200
+```
+
+> ref:  https://tldp.org/HOWTO/TCP-Keepalive-HOWTO/usingkeepalive.html
